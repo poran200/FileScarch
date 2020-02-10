@@ -8,21 +8,34 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    public List<String>  readFile(String filename) throws IOException {
+    public List<String>  readInputFile(String filename) throws IOException {
         List<String>  stringList = new ArrayList<>();
         try(BufferedReader bufferedReader = new BufferedReader( new FileReader(filename))){
-
             for (String line; (line = bufferedReader.readLine()) !=null;){
                 stringList.add(line);
             }
         }
         return  stringList;
     }
+
+    public List<String>  readDataFile(String filename) throws IOException {
+        List<String>  stringList = new ArrayList<>();
+        try(BufferedReader bufferedReader = new BufferedReader( new FileReader(filename))){
+
+            for (String line; (line = bufferedReader.readLine()) !=null;){
+                   String[] topicArray = line.split("\t");
+                   String sentence = topicArray[2];
+                  // System.out.println("sentence = " + sentence);
+                  stringList.add(sentence);
+            }
+        }
+        return  stringList;
+    }
+
     public  List<String> outputList (List<String> stringList , String search){
           return stringList. stream()
                   .map(String::toLowerCase)
-                  .filter(s -> s.contains(search) || s.startsWith(search))
-                  .limit(10)
+                  .filter(s -> s.startsWith(search))
                  .collect(Collectors.toList());
     }
 
@@ -36,27 +49,33 @@ public class Main {
         }
     }
 
-    public Main() {
+    public Main() throws IOException {
 //        Scanner input = new Scanner(System.in);
 //        System.out.println("Search: ");
 //        String search = input.nextLine().toLowerCase();
-        List<String> stringList =  new ArrayList<>();
-        List<String> inputting = new ArrayList<>();
+
+        List<String> sampleDataList =  new ArrayList<>();
+        List<String> inputList = new ArrayList<>();
         try {
             long start = System.currentTimeMillis();
-            stringList = readFile("scarch.txt");
+            sampleDataList=  readDataFile("sentences.csv");
+
             long end = System.currentTimeMillis()-start;
-            System.out.println("readFile time:"+ end);
-            inputting = readFile("input.txt");
+            System.out.println("Sample Data read file time readFile time:"+ end);
+
+            inputList = readInputFile("input.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        List<String> finalStringList = stringList;
-        inputting.forEach(s-> {
+      final   List<String> finalSampleDataList = sampleDataList;
+        inputList.forEach(keyWord-> {
                     try {
-                        List<String> outputListForEachSearch = outputList(finalStringList, s);
-                        fileCreate( outputListForEachSearch,s);
+                        long start = System.currentTimeMillis();
+                        List<String> outputListForEachSearch = outputList(finalSampleDataList, keyWord);
+                        long end = System.currentTimeMillis()-start;
+                        System.out.println("search output  topic name: "+keyWord+" time:"+ end);
+                        fileCreate( outputListForEachSearch,keyWord);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
